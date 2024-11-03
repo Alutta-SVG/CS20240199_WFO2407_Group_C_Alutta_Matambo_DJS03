@@ -85,9 +85,12 @@ initTheme();
 
 document.querySelector('[data-search-form]').addEventListener('submit', (event) => {
     event.preventDefault()
-    const formData = new FormData(event.target)
-    const filters = Object.fromEntries(formData)
-    const result = []
+    const formData = new FormData(event.target);
+    const { theme} = Object.fromEntries(formData);
+    applyTheme(theme);
+    document.querySelector('[data-search-form]').open = false 
+
+});
 
     for (const book of books) {
         let genreMatch = filters.genre === 'any'
