@@ -4,32 +4,25 @@ let page = 1;
 let matches = books
 
 /**
- * pure function to create an HTML button for a book preview
- * @param {Object} book - A book object with author, id, image and title properties
- * @returns {HTMLElement} - The book  preview button
+ * Pure function to create an HTML button for a book preview.
+ * @param {Object} book - A book object with author, id, image, and title properties.
+ * @returns {HTMLElement} - The book preview button.
  */
-
-const starting = document.createDocumentFragment()
-
-for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
-    const element = document.createElement('button')
-    element.classList = 'preview'
-    element.setAttribute('data-preview', id)
+const createBookPreviewElement = ({ author, id, image, title }) => {
+    const element = document.createElement('button');
+    element.classList = 'preview';
+    element.setAttribute('data-preview', id);
 
     element.innerHTML = `
-        <img
-            class="preview__image"
-            src="${image}"
-        />
-        
+        <img class="preview__image" src="${image}" />
         <div class="preview__info">
             <h3 class="preview__title">${title}</h3>
             <div class="preview__author">${authors[author]}</div>
         </div>
-    `
+    `;
 
-    starting.appendChild(element)
-}
+    return element;
+};
 
 document.querySelector('[data-list-items]').appendChild(starting)
 
