@@ -3,6 +3,12 @@ import { books, authors, genres, BOOKS_PER_PAGE } from './data.js'
 let page = 1;
 let matches = books
 
+/**
+ * pure function to create an HTML button for a book preview
+ * @param {Object} book - A book object with author, id, image and title properties
+ * @returns {HTMLElement} - The book  preview button
+ */
+
 const starting = document.createDocumentFragment()
 
 for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
