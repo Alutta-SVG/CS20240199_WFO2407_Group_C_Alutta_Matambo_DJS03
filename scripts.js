@@ -133,70 +133,54 @@ const updateShowMoreButton = (totalBooks) => {
     `;
 };
 
-    document.querySelector('[data-list-items]').appendChild(newItems)
-    document.querySelector('[data-list-button]').disabled = (matches.length - (page * BOOKS_PER_PAGE)) < 1
-
-    document.querySelector('[data-list-button]').innerHTML = `
-        <span>Show more</span>
-        <span class="list__remaining"> (${(matches.length - (page * BOOKS_PER_PAGE)) > 0 ? (matches.length - (page * BOOKS_PER_PAGE)) : 0})</span>
-    `
-
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    document.querySelector('[data-search-overlay]').open = false
-)}
 
 document.querySelector('[data-list-button]').addEventListener('click', () => {
-    const fragment = document.createDocumentFragment()
+    const fragment = document.createDocumentFragment();
+    matches.slice(page * BOOKS_PER_PAGE, (page + 1) * BOOKS_PER_PAGE).forEach(book => {
+        fragment.appendChild(createBookPreviewElement(book));
+    });
+    document.querySelector('[data-list-items]').appendChild(fragment);
+    page += 1;
+    updateShowMoreButton(matches.length);
+});
 
-    for (const { author, id, image, title } of matches.slice(page * BOOKS_PER_PAGE, (page + 1) * BOOKS_PER_PAGE)) {
-        const element = document.createElement('button')
-        element.classList = 'preview'
-        element.setAttribute('data-preview', id)
-    
-        element.innerHTML = `
-            <img
-                class="preview__image"
-                src="${image}"
-            />
-            
-            <div class="preview__info">
-                <h3 class="preview__title">${title}</h3>
-                <div class="preview__author">${authors[author]}</div>
-            </div>
-        `
+// Event listener for showing the search overlay
+document.querySelector('[data-header-search]').addEventListener('click', () => {
+    document.querySelector('[data-search-overlay]').open = true;
+    document.querySelector('[data-search-title]').focus();
+});
 
-        fragment.appendChild(element)
-    }
+// Event listener for showing the settings overlay
+document.querySelector('[data-header-settings]').addEventListener('click', () => {
+    document.querySelector('[data-settings-overlay]').open = true;
+});
 
-    document.querySelector('[data-list-items]').appendChild(fragment)
-    page += 1
-})
+// Event listener for hiding overlays
+document.querySelector('[data-search-cancel]').addEventListener('click', () => {
+    document.querySelector('[data-search-overlay]').open = false;
+});
+
+document.querySelector('[data-settings-cancel]').addEventListener('click', () => {
+    document.querySelector('[data-settings-overlay]').open = false;
+});
+
+/**
+ * Displays the details of the selected book
+ * @param {Object} book - The book object to display details for
+ */
+const displayBookDetails = (book) => {
+    document.querySelector('[data-list-active]').open = true;
+    document.querySelector('[data-list-blur]').src = book.image;
+    document.querySelector('[data-list-image]').src = book.image;
+    document.querySelector('[data-list-title]').innerText = book.title;
+    document.querySelector('[data-list-subtitle]').innerText = `${authors[book.author]} (${new Date(book.published).getFullYear()})`;
+    document.querySelector('[data-list-description]').innerText = book.description;
+};
 
 document.querySelector('[data-list-items]').addEventListener('click', (event) => {
-    const pathArray = Array.from(event.path || event.composedPath())
-    let active = null
-
-    for (const node of pathArray) {
-        if (active) break
-
-        if (node?.dataset?.preview) {
-            let result = null
-    
-            for (const singleBook of books) {
-                if (result) break;
-                if (singleBook.id === node?.dataset?.preview) result = singleBook
-            } 
-        
-            active = result
-        }
+    const bookId = event.target.closest('.preview')?.dataset.preview;
+    if (bookId) {
+        const selectedBook = books.find(book => book.id === bookId);
+        if (selectedBook) displayBookDetails(selectedBook);
     }
-    
-    if (active) {
-        document.querySelector('[data-list-active]').open = true
-        document.querySelector('[data-list-blur]').src = active.image
-        document.querySelector('[data-list-image]').src = active.image
-        document.querySelector('[data-list-title]').innerText = active.title
-        document.querySelector('[data-list-subtitle]').innerText = `${authors[active.author]} (${new Date(active.published).getFullYear()})`
-        document.querySelector('[data-list-description]').innerText = active.description
-    }
-})
+});
