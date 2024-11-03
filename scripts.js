@@ -3,6 +3,7 @@ import { books, authors, genres, BOOKS_PER_PAGE } from './data.js'
 let page = 1;
 let matches = books
 
+
 /**
  * Pure function to create an HTML button for a book preview.
  * @param {Object} book - A book object with author, id, image, and title properties.
@@ -13,7 +14,7 @@ const createBookPreviewElement = ({ author, id, image, title }) => {
     element.classList = 'preview';
     element.setAttribute('data-preview', id);
 
-    element.innerHTML = `
+        element.innerHTML = `
         <img class="preview__image" src="${image}" />
         <div class="preview__info">
             <h3 class="preview__title">${title}</h3>
@@ -24,37 +25,44 @@ const createBookPreviewElement = ({ author, id, image, title }) => {
     return element;
 };
 
-document.querySelector('[data-list-items]').appendChild(starting)
+/**
+ * Renders the initial set of books based on the BOOKS_PER_PAGE limit
+ * @param {Array} booksToRender - Array of book objects
+ */
+const renderInitialBooks = (booksToRender) => {
+    const fragment = document.createDocumentFragment();
+    booksToRender.slice(0, BOOKS_PER_PAGE).forEach(book => {
+        fragment.appendChild(createBookPreviewElement(book));
+    });
+    document.querySelector('[data-list-items]').appendChild(fragment);
+};
 
-const genreHtml = document.createDocumentFragment()
-const firstGenreElement = document.createElement('option')
-firstGenreElement.value = 'any'
-firstGenreElement.innerText = 'All Genres'
-genreHtml.appendChild(firstGenreElement)
+renderInitialBooks(matches);
 
-for (const [id, name] of Object.entries(genres)) {
-    const element = document.createElement('option')
-    element.value = id
-    element.innerText = name
-    genreHtml.appendChild(element)
-}
+/**
+ * Populates dropdown with options based on a given list
+ * @param {HTMLElement} dropdown - The dropdown element to populate
+ * @param {Object} options - Object with option values as keys and labels as values
+ * @param {string} defaultLabel - Default label for the first option
+ */
+const populateDropdown = (dropdown, options, defaultLabel) => {
+    const fragment = document.createDocumentFragment();
+    const defaultOption = document.createElement('option');
+    defaultOption.value = 'any';
+    defaultOption.innerText = defaultLabel;
+    fragment.appendChild(defaultOption);
 
-document.querySelector('[data-search-genres]').appendChild(genreHtml)
+    Object.entries(options).forEach(([id, name]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.innerText = name;
+        fragment.appendChild(option);
+    });
+    dropdown.appendChild(fragment);
+};
 
-const authorsHtml = document.createDocumentFragment()
-const firstAuthorElement = document.createElement('option')
-firstAuthorElement.value = 'any'
-firstAuthorElement.innerText = 'All Authors'
-authorsHtml.appendChild(firstAuthorElement)
-
-for (const [id, name] of Object.entries(authors)) {
-    const element = document.createElement('option')
-    element.value = id
-    element.innerText = name
-    authorsHtml.appendChild(element)
-}
-
-document.querySelector('[data-search-authors]').appendChild(authorsHtml)
+populateDropdown(document.querySelector('[data-search-genres]'),genres `All genres`);
+populateDropdown(document.querySelector('[data-search-authors'),authors `All Authors`);
 
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     document.querySelector('[data-settings-theme]').value = 'night'
