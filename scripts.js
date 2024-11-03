@@ -5,23 +5,22 @@ let matches = books
 
 
 /**
- * Pure function to create an HTML button for a book preview.
- * @param {Object} book - A book object with author, id, image, and title properties.
- * @returns {HTMLElement} - The book preview button.
+ * Pure function to create an HTML button for a book preview
+ * @param {Object} book - A book object with author, id, image, and title properties
+ * @returns {HTMLElement} - The book preview button element
  */
 const createBookPreviewElement = ({ author, id, image, title }) => {
     const element = document.createElement('button');
-    element.classList = 'preview';
-    element.setAttribute('data-preview', id);
-
-        element.innerHTML = `
+    element.classList.add('preview');
+    element.dataset.preview = id;
+    element.innerHTML = `
         <img class="preview__image" src="${image}" />
         <div class="preview__info">
             <h3 class="preview__title">${title}</h3>
             <div class="preview__author">${authors[author]}</div>
         </div>
     `;
-
+    
     return element;
 };
 
@@ -40,7 +39,7 @@ const renderInitialBooks = (booksToRender) => {
 renderInitialBooks(matches);
 
 /**
- * Populates dropdown with options based on a given list
+ * Populates a dropdown with options based on a given list
  * @param {HTMLElement} dropdown - The dropdown element to populate
  * @param {Object} options - Object with option values as keys and labels as values
  * @param {string} defaultLabel - Default label for the first option
@@ -61,12 +60,12 @@ const populateDropdown = (dropdown, options, defaultLabel) => {
     dropdown.appendChild(fragment);
 };
 
-populateDropdown(document.querySelector('[data-search-genres]'),genres `All genres`);
-populateDropdown(document.querySelector('[data-search-authors'),authors `All Authors`);
+populateDropdown(document.querySelector('[data-search-genres]'), genres, 'All Genres');
+populateDropdown(document.querySelector('[data-search-authors]'), authors, 'All Authors');
 
 /**
  * Toggles the color scheme based on user preference
- * @param {string} theme - Select theme (either 'night' or 'day')
+ * @param {string} theme - Selected theme (either 'night' or 'day')
  */
 const applyTheme = (theme) => {
     const isNight = theme === 'night';
@@ -83,17 +82,25 @@ const initTheme = () => {
 
 initTheme();
 
-document.querySelector('[data-search-form]').addEventListener('submit', (event) => {
-    event.preventDefault()
+document.querySelector('[data-settings-form]').addEventListener('submit', (event) => {
+    event.preventDefault();
     const formData = new FormData(event.target);
-    const { theme} = Object.fromEntries(formData);
+    const { theme } = Object.fromEntries(formData);
     applyTheme(theme);
-    document.querySelector('[data-search-form]').open = false 
+    document.querySelector('[data-settings-overlay]').open = false;
+});
 
+document.querySelector('[data-search-form]').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const filters = Object.fromEntries(formData);
+    matches = filterBooks(filters);
+    page = 1;
+    updateBookList(matches);
 });
 
 /**
- * Filters books based on the search criteria
+ * Filters books based on search criteria
  * @param {Object} filters - Object with search criteria
  * @returns {Array} - Filtered list of books
  */
